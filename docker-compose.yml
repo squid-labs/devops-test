@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  goapp:
+    build:
+      context: ./goapp
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    environment:
+      - APP_ENV=production
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  pythonapp:
+    build:
+      context: ./pythonapp
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    networks:
+      - backend
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - pythonapp
+    networks:
+      - frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://reverse-proxy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  adminapp:
+    build:
+      context: ./adminapp
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - goapp
+    networks:
+      - frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://reverse-proxy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  reverse-proxy:
+      image: traefik:v2.10
+      container_name: reverse-proxy
+      command:
+        - "--api.insecure=false"
+        - "--providers.docker=true"
+        - "--entrypoints.web.address=:80"
+      ports:
+        - "80:80"
+      networks:
+        - frontend
+        - backend
+      restart: unless-stopped
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
