@@ -35,6 +35,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.ecs_vpc.id
 
