@@ -1,0 +1,61 @@
+name: Build (Main)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+          token: ${{ secrets.READ_GITHUB_REPOS_TOKEN }}
+
+      - name: Set short sha
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push goapp image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./goapp
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/goapp:${{ steps.vars.outputs.sha_short }}
+
+      - name: Build and push pythonapp image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./pythonapp
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/pythonapp:${{ steps.vars.outputs.sha_short }}
+
+      - name: Build and push webapp image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./webapp
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/webapp:${{ steps.vars.outputs.sha_short }}
+
+      - name: Build and push adminapp image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./adminapp
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/adminapp:${{ steps.vars.outputs.sha_short }}
