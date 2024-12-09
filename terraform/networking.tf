@@ -2,10 +2,13 @@ data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "ecs_vpc" {
   cidr_block = var.vpc_cidr
+  tags = {
+   Name = "Test-VPC"
+ }
 }
 
 resource "aws_subnet" "ecs_subnets" {
-  count             = 2
+  count             = length(var.subnet_cidrs)
   vpc_id            = aws_vpc.ecs_vpc.id
   cidr_block        = "10.0.${count.index}.0/24"
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
@@ -47,7 +50,7 @@ resource "aws_route_table" "public" {
 
 resource "aws_route_table_association" "public" {
   count          = length(var.subnet_cidrs)
-  subnet_id      = aws_subnet.ecs_subnets[count.index].id
+  subnet_id      = element(aws_subnet.ecs_subnets[*].id, count.index)
   route_table_id = aws_route_table.public.id
 }
 

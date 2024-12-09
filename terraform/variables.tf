@@ -13,8 +13,8 @@ variable "container_ports" {
   default     = {
     goapp     = 8080
     pythonapp = 8090
-    webapp    = 3000
-    adminapp  = 3001
+    webapp    = 3001
+    adminapp  = 3000
     traefik   = 80
   }
 }
@@ -26,13 +26,13 @@ variable "container_registry" {
 variable "aws_access_key" {
   description = "AWS Access Key ID"
   sensitive   = true
-  default = "AKIAS6J7QL5FXHJZEKOL"
+  default = ""
 }
 
 variable "aws_secret_key" {
   description = "AWS Secret Access Key"
   sensitive   = true
-  default = "xOc3INMp155S+Y244GjkUvrjtGZypY57PGZyCcCG"
+  default = ""
 }
 
 variable "subnet_cidrs" {
@@ -44,3 +44,4 @@ variable "vpc_cidr" {
   description = "VPC CIDR block" 
   default = "10.0.0.0/16" 
 }
+

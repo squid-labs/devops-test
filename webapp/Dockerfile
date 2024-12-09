@@ -29,7 +29,7 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 # Expose the default Next.js port
-EXPOSE 3001
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]
