@@ -13,9 +13,8 @@ variable "container_ports" {
   default     = {
     goapp     = 8080
     pythonapp = 8090
-    webapp    = 3001
+    webapp    = 9000
     adminapp  = 3000
-    traefik   = 80
   }
 }
 
