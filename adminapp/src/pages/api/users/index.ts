@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const BACKEND_URL = 'http://localhost:8080';
+const BACKEND_URL = 'http://172.20.0.1:8080';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
