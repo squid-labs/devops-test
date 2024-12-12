@@ -41,25 +41,3 @@ Terraform yaml is used to deploy the terraform folder. This would require
 ## 5. What are the implementation of using monitoring
 The monitoring in this is deployed through IaC onto AWS Cloudwatch, there are 2 monitoring, one is the high CPU and also high RAM.
 You can check this out in the Terraform folder monitoring.tf
-
-
-## NOTE:
-There is issue with the adminapp and this would cause the terraform to deployed but the ecs task will keep on redeploying non stop. This needs to be fixed. The same behavior can be seen when using docker-compose up.
-
-devops-test-main-adminapp-1   | API Error: TypeError: fetch failed
-devops-test-main-adminapp-1   |     at async i (/app/.next/server/pages/api/users.js:1:570)
-devops-test-main-adminapp-1   |     at async z (/app/node_modules/next/dist/compiled/next-server/pages-api.runtime.prod.js:20:16764)
-devops-test-main-adminapp-1   |     at async U.render (/app/node_modules/next/dist/compiled/next-server/pages-api.runtime.prod.js:20:17472)
-devops-test-main-adminapp-1   |     at async NextNodeServer.runApi (/app/node_modules/next/dist/server/next-server.js:618:9)
-devops-test-main-adminapp-1   |     at async NextNodeServer.handleCatchallRenderRequest (/app/node_modules/next/dist/server/next-server.js:278:37)
-devops-test-main-adminapp-1   |     at async NextNodeServer.handleRequestImpl (/app/node_modules/next/dist/server/base-server.js:853:17)
-devops-test-main-adminapp-1   |     at async invokeRender (/app/node_modules/next/dist/server/lib/router-server.js:183:21)
-devops-test-main-adminapp-1   |     at async handleRequest (/app/node_modules/next/dist/server/lib/router-server.js:360:24) {
-devops-test-main-adminapp-1   |   [cause]: Error: connect ECONNREFUSED 127.0.0.1:8080
-devops-test-main-adminapp-1   |       at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:8080) {
-devops-test-main-adminapp-1   |     errno: -111,
-devops-test-main-adminapp-1   |     code: 'ECONNREFUSED',
-devops-test-main-adminapp-1   |     syscall: 'connect',
-devops-test-main-adminapp-1   |     address: '127.0.0.1',
-devops-test-main-adminapp-1   |     port: 8080
-devops-test-main-adminapp-1   |   }
