@@ -6,6 +6,10 @@ on:
       - 'main'
     paths:
       - terraform/**
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
  # verbosity setting for Terraform logs
