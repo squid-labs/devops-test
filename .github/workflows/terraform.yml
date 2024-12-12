@@ -29,8 +29,8 @@ jobs:
       repository-projects: write
 
     defaults:
-      shell: bash
       run:
+        shell: bash
         working-directory: ./terraform
 
     steps:
