@@ -4,8 +4,23 @@ on:
   push:
     branches:
       - 'main'
+    paths:
+      - terraform/**
   pull_request:
+    branches:
+      - 'main'
+    paths:
+      - terraform/**
 
+env:
+ # verbosity setting for Terraform logs
+ TF_LOG: INFO
+ # Credentials for deployment to AWS
+ AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+ AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+ # S3 bucket for the Terraform state
+ BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE}}
+ 
 jobs:
   terraform:
     runs-on: ubuntu-latest
@@ -15,8 +30,9 @@ jobs:
       repository-projects: write
 
     defaults:
+      shell: bash
       run:
-        working-directory: terraform
+        working-directory: ./terraform
 
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -27,16 +43,14 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Set AWS Credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          echo "AWS credentials set."
-
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init
+        id: init
+        run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
+
+      - name: Terraform validate
+       id: validate
+       run: terraform validate
 
       # Previews the changes that Terraform will make
       - name: Terraform Plan
@@ -44,19 +58,36 @@ jobs:
         continue-on-error: true
         run: terraform plan -input=false -no-color
 
-      # Post the preview (terraform plan) from the previous step as a GitHub pull request comment
-      - name: Post Plan to GitHub PR
-        if: github.ref != 'refs/heads/main'
-        uses: mshick/add-pr-comment@v1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          repo-token-user-login: 'github-actions[bot]'
-          message: |
-            Applying:
-
-            ```
-            ${{ steps.plan.outputs.stdout }}
-            ```
+      - uses: actions/github-script@v6
+            if: github.event_name == 'pull_request'
+            env:
+              PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+            with:
+              script: |
+                const output = `#### Terraform Format and Style`${{ steps.fmt.outcome }}\`
+                #### Terraform Initialization \`${{ steps.init.outcome }}\`
+                #### Terraform Validation \`${{ steps.validate.outcome }}\`
+                #### Terraform Plan \`${{ steps.plan.outcome }}\`
+      
+                <details><summary>Show Plan</summary>
+      
+                \`\`\`\n
+                ${process.env.PLAN}
+                \`\`\`
+      
+                </details>
+                *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+      
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: output
+                })
+      
+          - name: Terraform Plan Status
+            if: steps.plan.outcome == 'failure'
+            run: exit 1
 
       # Applies the terraform configuration files when the branch is `main`
       - name: Terraform Apply
@@ -65,10 +96,3 @@ jobs:
         continue-on-error: true
         run: |
           terraform apply -auto-approve
-
-      - name: commit the terraform state
-        if: github.ref == 'refs/heads/main'
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Updating Terraform state
-          file_pattern: terraform.tfstate
