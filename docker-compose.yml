@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   goapp:
     build:
@@ -8,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - frontend
+      bridged:
     environment:
       - APP_ENV=production
     restart: unless-stopped
@@ -22,7 +20,7 @@ services:
     ports:
       - "8090:8090"
     networks:
-      - frontend
+      bridged:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -32,13 +30,11 @@ services:
       context: ./webapp
       dockerfile: Dockerfile
     ports:
-      - "9000:9000"
+      - "9000:3000"
     depends_on:
       - pythonapp
     networks:
-      - frontend
-    environment:
-      - NEXT_PUBLIC_API_URL=http://reverse-proxy
+      bridged:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -52,28 +48,13 @@ services:
     depends_on:
       - goapp
     networks:
-      - frontend
-    environment:
-      - NEXT_PUBLIC_API_URL=http://reverse-proxy
+      bridged:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
 
-  reverse-proxy:
-      image: traefik:v2.10
-      container_name: reverse-proxy
-      command:
-        - "--api.insecure=false"
-        - "--providers.docker=true"
-        - "--entrypoints.web.address=:80"
-      ports:
-        - "80:80"
-      networks:
-        - frontend
-      restart: unless-stopped
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock:ro
 
 networks:
-  frontend:
-    driver: local
+  host-net:
+    external: true
+  bridged:
