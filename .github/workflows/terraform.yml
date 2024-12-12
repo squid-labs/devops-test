@@ -95,3 +95,10 @@ jobs:
         continue-on-error: true
         run: |
           terraform apply -auto-approve
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        id: apply
+        continue-on-error: true
+        run: |
+          terraform apply -auto-approve

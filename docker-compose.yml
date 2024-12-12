@@ -32,7 +32,7 @@ services:
       context: ./webapp
       dockerfile: Dockerfile
     ports:
-      - "9000:3000"
+      - "9000:9000"
     depends_on:
       - pythonapp
     networks:
