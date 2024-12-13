@@ -1,4 +1,4 @@
-# Pantheon Lab DevOps Challenge
+DevOps Challenge
 
 ## Introduction
 
