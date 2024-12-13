@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const BACKEND_URL = 'http://172.20.0.1:8080';
-
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
+console.log(BACKEND_URL)
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === 'GET') {
