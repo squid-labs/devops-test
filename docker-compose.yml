@@ -7,6 +7,8 @@ services:
       - "8080:8080"
     networks:
       bridged:
+          aliases:
+            - goapp-alias
     environment:
       - APP_ENV=production
     restart: unless-stopped
@@ -35,6 +37,8 @@ services:
       - pythonapp
     networks:
       bridged:
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -49,6 +53,8 @@ services:
       - goapp
     networks:
       bridged:
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://172.20.0.1:8080
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

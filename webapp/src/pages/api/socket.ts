@@ -11,7 +11,7 @@ export const config = {
   },
 }
 
-const BACKEND_URL = 'http://localhost:8090'
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
 const ioHandler = (req: NextApiRequest, res: any) => {
   if (!res.socket.server.io) {
